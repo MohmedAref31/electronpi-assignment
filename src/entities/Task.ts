@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { TaskStatus, TaskPriority } from './enums';
 import { Project } from './Project';
+import { User } from './User';
 
 @Entity('tasks')
 export class Task {
@@ -38,6 +39,14 @@ export class Task {
   @ManyToOne(() => Project, (project) => project.tasks, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'projectId' })
   project?: Project;
+
+  @Index()
+  @Column({ type: 'int' })
+  createdById!: number;
+
+  @ManyToOne(() => User, (user) => user.createdTasks, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'createdById' })
+  createdBy?: User;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;

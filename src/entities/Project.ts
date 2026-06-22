@@ -35,6 +35,14 @@ export class Project {
   @JoinColumn({ name: 'ownerId' })
   owner?: User;
 
+  @Index()
+  @Column({ type: 'int' })
+  createdById!: number;
+
+  @ManyToOne(() => User, (user) => user.createdProjects, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'createdById' })
+  createdBy?: User;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
