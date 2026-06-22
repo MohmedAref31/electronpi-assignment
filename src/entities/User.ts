@@ -9,7 +9,6 @@ import {
 } from 'typeorm';
 import { UserRole } from './enums';
 import { Project } from './Project';
-import { Task } from './Task';
 
 @Entity('users')
 export class User {
@@ -37,10 +36,4 @@ export class User {
 
   @OneToMany(() => Project, (project) => project.owner)
   projects?: Project[];
-
-  @OneToMany(() => Project, (project) => project.createdBy)
-  createdProjects?: Project[];
-
-  @OneToMany(() => Task, (task) => task.createdBy)
-  createdTasks?: Task[];
 }
