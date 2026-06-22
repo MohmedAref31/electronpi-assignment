@@ -121,11 +121,12 @@ describe('project.controller (member)', () => {
       });
 
       await projectController.list(
-        { user: mockUser(), query: { page: '1', limit: '20' } } as unknown as Request,
+        { user: mockUser(), pagination: { page: 1, limit: 20, skip: 0 } } as unknown as Request,
         res as Response,
         jest.fn() as NextFunction,
       );
 
+      expect(mockedListOwnProjects).toHaveBeenCalledWith(2, { page: 1, limit: 20, skip: 0 });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         success: true,
@@ -219,12 +220,12 @@ describe('admin.project.controller', () => {
       });
 
       await adminProjectController.list(
-        { query: { page: '1', limit: '20' } } as unknown as Request,
+        { pagination: { page: 1, limit: 20, skip: 0 } } as unknown as Request,
         res as Response,
         jest.fn() as NextFunction,
       );
 
-      expect(mockedListAllProjects).toHaveBeenCalledWith({ page: '1', limit: '20' });
+      expect(mockedListAllProjects).toHaveBeenCalledWith({ page: 1, limit: 20, skip: 0 });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         success: true,

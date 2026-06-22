@@ -2,6 +2,7 @@ import { projectRepo } from '../entities';
 import { Project } from '../entities/Project';
 import { ProjectStatus } from '../entities/enums';
 import { ApiError } from '../utils/ApiError';
+import type { Pagination } from '../middlewares/pagination';
 
 export interface CreateProjectInput {
   title: string;
@@ -20,17 +21,6 @@ export interface PaginatedResult<T> {
   total: number;
   page: number;
   limit: number;
-}
-
-const MAX_LIMIT = 100;
-const DEFAULT_LIMIT = 20;
-const DEFAULT_PAGE = 1;
-
-function parsePagination(query: { page?: unknown; limit?: unknown }): { page: number; limit: number; skip: number } {
-  const page = Math.max(1, parseInt(String(query.page ?? DEFAULT_PAGE), 10) || DEFAULT_PAGE);
-  const rawLimit = parseInt(String(query.limit ?? DEFAULT_LIMIT), 10) || DEFAULT_LIMIT;
-  const limit = Math.min(Math.max(1, rawLimit), MAX_LIMIT);
-  return { page, limit, skip: (page - 1) * limit };
 }
 
 function serializeProject(project: Project) {
@@ -64,9 +54,9 @@ export async function createProject(ownerId: number, input: CreateProjectInput):
 
 export async function listOwnProjects(
   ownerId: number,
-  query: { page?: unknown; limit?: unknown },
+  pagination: Pagination,
 ): Promise<PaginatedResult<Project>> {
-  const { page, limit, skip } = parsePagination(query);
+  const { page, limit, skip } = pagination;
   const [items, total] = await projectRepo.findAndCount({
     where: { ownerId },
     skip,
@@ -109,9 +99,9 @@ export async function deleteOwnProject(ownerId: number, id: number): Promise<voi
 // ---------------------------------------------------------------------------
 
 export async function listAllProjects(
-  query: { page?: unknown; limit?: unknown },
+  pagination: Pagination,
 ): Promise<PaginatedResult<Project>> {
-  const { page, limit, skip } = parsePagination(query);
+  const { page, limit, skip } = pagination;
   const [items, total] = await projectRepo.findAndCount({
     skip,
     take: limit,

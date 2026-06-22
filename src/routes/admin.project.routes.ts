@@ -8,6 +8,7 @@ import {
 import { updateProjectRules, projectIdParam } from '../validators/project.validator';
 import { protect, authorize } from '../middlewares/auth';
 import { validateRequest } from '../middlewares/validateRequest';
+import { paginationMiddleware } from '../middlewares/pagination';
 import { UserRole } from '../entities/enums';
 
 export const adminProjectRouter = Router();
@@ -18,7 +19,7 @@ adminProjectRouter.use(protect, authorize(UserRole.ADMIN));
  * GET /api/v1/admin/projects?page=1&limit=20
  * List all projects across all users (admin only, paginated).
  */
-adminProjectRouter.get('/', list);
+adminProjectRouter.get('/', paginationMiddleware, list);
 
 /**
  * GET /api/v1/admin/projects/:id

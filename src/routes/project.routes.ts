@@ -9,6 +9,7 @@ import {
 import { createProjectRules, updateProjectRules, projectIdParam } from '../validators/project.validator';
 import { protect } from '../middlewares/auth';
 import { validateRequest } from '../middlewares/validateRequest';
+import { paginationMiddleware } from '../middlewares/pagination';
 
 export const projectRouter = Router();
 
@@ -24,7 +25,7 @@ projectRouter.post('/', createProjectRules, validateRequest, create);
  * GET /api/v1/projects?page=1&limit=20
  * List the authenticated user's projects (paginated).
  */
-projectRouter.get('/', list);
+projectRouter.get('/', paginationMiddleware, list);
 
 /**
  * GET /api/v1/projects/:id

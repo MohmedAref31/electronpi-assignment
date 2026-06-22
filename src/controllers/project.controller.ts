@@ -27,10 +27,10 @@ export async function create(req: Request, res: Response, next: NextFunction): P
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { items, total, page, limit } = await listOwnProjects(req.user!.id, {
-      page: req.query.page,
-      limit: req.query.limit,
-    });
+    const { items, total, page, limit } = await listOwnProjects(
+      req.user!.id,
+      req.pagination!,
+    );
 
     res.status(200).json({
       success: true,
