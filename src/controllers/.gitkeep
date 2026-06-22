@@ -1,0 +1,2 @@
+# This directory holds Express controllers (HTTP request/response handlers).
+# Controllers are added in subsequent implementation steps, grouped by feature.

@@ -1,0 +1,2 @@
+# This directory holds express-validator schemas used by route definitions.
+# Validators are added in subsequent implementation steps, grouped by feature.

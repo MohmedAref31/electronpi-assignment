@@ -1,0 +1,3 @@
+# This directory holds TypeORM migration files generated via:
+#   npm run migration:generate -- src/migrations/InitialSchema
+# Migrations are added in subsequent implementation steps.
