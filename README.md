@@ -307,6 +307,106 @@ router.delete('/projects/:id', protect, authorize(UserRole.ADMIN), handler);
 
 ---
 
+## Projects
+
+Users can create, list, view, update, and delete **their own** projects. All project endpoints require a valid JWT.
+
+### Member Endpoints (`/api/v1/projects`)
+
+| Method | Endpoint | Description | Status |
+| ------ | -------- | ----------- | ------ |
+| `POST` | `/projects` | Create a new project | 201 |
+| `GET` | `/projects?page=1&limit=20` | List own projects (paginated) | 200 |
+| `GET` | `/projects/:id` | Get own project by ID | 200 |
+| `PUT` | `/projects/:id` | Update own project | 200 |
+| `DELETE` | `/projects/:id` | Delete own project | 200 |
+
+#### Create Project
+
+```http
+POST /api/v1/projects
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "title": "Website Redesign",
+  "description": "Redesign the company website",
+  "status": "active"
+}
+```
+
+| Field         | Rules                                                |
+| ------------- | ---------------------------------------------------- |
+| `title`       | Required, 2–200 characters                           |
+| `description` | Optional, max 2000 characters                        |
+| `status`      | Optional, one of: `active`, `completed`, `archived` (default: `active`) |
+
+**Response `201 Created`**
+
+```json
+{
+  "success": true,
+  "data": {
+    "project": {
+      "id": 1,
+      "title": "Website Redesign",
+      "description": "Redesign the company website",
+      "status": "active",
+      "ownerId": 2,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    }
+  }
+}
+```
+
+#### List Projects (paginated)
+
+```http
+GET /api/v1/projects?page=1&limit=20
+Authorization: Bearer <token>
+```
+
+| Query param | Default | Max |
+| ----------- | ------- | --- |
+| `page`      | 1       | —   |
+| `limit`     | 20      | 100 |
+
+**Response `200 OK`**
+
+```json
+{
+  "success": true,
+  "data": {
+    "projects": [ ... ],
+    "total": 15,
+    "page": 1,
+    "limit": 20
+  }
+}
+```
+
+#### Ownership
+
+A member requesting a project they don't own receives `404 Not Found` (not `403`) to prevent resource enumeration — you can't tell if project #5 exists if you don't own it.
+
+### Admin Endpoints (`/api/v1/admin/projects`)
+
+Admins can view, update, and delete **any** project across all users. These routes require the `admin` role.
+
+| Method | Endpoint | Description | Status |
+| ------ | -------- | ----------- | ------ |
+| `GET` | `/admin/projects?page=1&limit=20` | List all projects (paginated) | 200 |
+| `GET` | `/admin/projects/:id` | Get any project by ID | 200 |
+| `PUT` | `/admin/projects/:id` | Update any project | 200 |
+| `DELETE` | `/admin/projects/:id` | Delete any project | 200 |
+
+> **Note:** Admins create their own projects via `POST /projects` (same as members). There is no `POST /admin/projects`.
+
+Members accessing admin endpoints receive `403 Forbidden`.
+
+---
+
 ## Localization (i18n)
 
 The API supports **English (`en`)** and **Arabic (`ar`)**. Language is resolved per request, in priority order:
@@ -334,10 +434,10 @@ curl -H "Accept-Language: ar" http://localhost:3000/api/v1/health
 │   ├── entities/      User.ts, Project.ts, Task.ts, enums.ts
 │   ├── locales/       en/translation.json, ar/translation.json
 │   ├── middlewares/   errorHandler.ts, notFound.ts, validateRequest.ts, i18n.ts, auth.ts
-│   ├── routes/        index.ts, health.routes.ts, auth.routes.ts
-│   ├── controllers/   auth.controller.ts
-│   ├── services/      auth.service.ts
-│   ├── validators/    auth.validator.ts
+│   ├── routes/        index.ts, health.routes.ts, auth.routes.ts, project.routes.ts, admin.routes.ts, admin.project.routes.ts
+│   ├── controllers/   auth.controller.ts, project.controller.ts, admin.project.controller.ts
+│   ├── services/      auth.service.ts, project.service.ts
+│   ├── validators/    auth.validator.ts, project.validator.ts
 │   ├── utils/         ApiError.ts, logger.ts, jwt.ts, password.ts
 │   ├── migrations/    (TypeORM migrations)
 │   ├── seeds/         (seed scripts)

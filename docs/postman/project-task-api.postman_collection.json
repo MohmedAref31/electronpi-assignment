@@ -234,6 +234,394 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Projects",
+      "description": "Project management endpoints for the authenticated user. Users can create, list, view, update, and delete their own projects. All requests require a Bearer token.",
+      "item": [
+        {
+          "name": "Create Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.success && json.data && json.data.project) {",
+                  "  pm.environment.set('projectId', json.data.project.id);",
+                  "  console.log('projectId stored: ' + json.data.project.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Website\",\n  \"description\": \"Redesign the company website\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            },
+            "description": "Create a new project owned by the authenticated user. Returns 201 with the project and a JWT. The test script auto-stores the project ID in {{projectId}}."
+          },
+          "response": [
+            {
+              "name": "Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"New Website\",\n  \"description\": \"Redesign the company website\",\n  \"status\": \"active\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/projects",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["projects"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"project\": {\n      \"id\": 1,\n      \"title\": \"New Website\",\n      \"description\": \"Redesign the company website\",\n      \"status\": \"active\",\n      \"ownerId\": 2,\n      \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2026-01-01T00:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "List My Projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "List the authenticated user's projects with pagination."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/projects?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["projects"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"projects\": [\n      {\n        \"id\": 1,\n        \"title\": \"New Website\",\n        \"description\": \"Redesign the company website\",\n        \"status\": \"active\",\n        \"ownerId\": 2,\n        \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n        \"updatedAt\": \"2026-01-01T00:00:00.000Z\"\n      }\n    ],\n    \"total\": 1,\n    \"page\": 1,\n    \"limit\": 20\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Project by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}"]
+            },
+            "description": "Get a single project owned by the authenticated user. Returns 404 if the project does not exist or is not owned by the user."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/projects/{{projectId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["projects", "{{projectId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"project\": {\n      \"id\": 1,\n      \"title\": \"New Website\",\n      \"description\": \"Redesign the company website\",\n      \"status\": \"active\",\n      \"ownerId\": 2,\n      \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2026-01-01T00:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"status\": \"completed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}"]
+            },
+            "description": "Update a project owned by the authenticated user. All fields are optional."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated Title\",\n  \"status\": \"completed\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/projects/{{projectId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["projects", "{{projectId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"project\": {\n      \"id\": 1,\n      \"title\": \"Updated Title\",\n      \"description\": \"Redesign the company website\",\n      \"status\": \"completed\",\n      \"ownerId\": 2,\n      \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2026-01-01T12:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}"]
+            },
+            "description": "Delete a project owned by the authenticated user. Cascades to delete the project's tasks."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/projects/{{projectId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["projects", "{{projectId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin - Projects",
+      "description": "Admin-only endpoints for managing all projects across all users. Requires a Bearer token with admin role. Members receive 403 Forbidden.",
+      "item": [
+        {
+          "name": "List All Projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/projects?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "projects"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "List all projects across all users (admin only, paginated)."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/projects?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "projects"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"projects\": [\n      {\n        \"id\": 1,\n        \"title\": \"Website Redesign\",\n        \"description\": \"A new site\",\n        \"status\": \"active\",\n        \"ownerId\": 2,\n        \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n        \"updatedAt\": \"2026-01-01T00:00:00.000Z\"\n      }\n    ],\n    \"total\": 1,\n    \"page\": 1,\n    \"limit\": 20\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Any Project",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "projects", "{{projectId}}"]
+            },
+            "description": "Get any project by ID (admin only, no ownership restriction)."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/projects/{{projectId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "projects", "{{projectId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"project\": {\n      \"id\": 1,\n      \"title\": \"Website Redesign\",\n      \"description\": \"A new site\",\n      \"status\": \"active\",\n      \"ownerId\": 2,\n      \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2026-01-01T00:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Any Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Admin Updated Title\",\n  \"status\": \"archived\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "projects", "{{projectId}}"]
+            },
+            "description": "Update any project by ID (admin only, no ownership restriction)."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Admin Updated Title\",\n  \"status\": \"archived\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/projects/{{projectId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "projects", "{{projectId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"project\": {\n      \"id\": 1,\n      \"title\": \"Admin Updated Title\",\n      \"description\": \"A new site\",\n      \"status\": \"archived\",\n      \"ownerId\": 2,\n      \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2026-01-01T12:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Any Project",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "projects", "{{projectId}}"]
+            },
+            "description": "Delete any project by ID (admin only). Cascades to delete the project's tasks."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/projects/{{projectId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "projects", "{{projectId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

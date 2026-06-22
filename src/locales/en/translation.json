@@ -23,6 +23,11 @@
     "registerSuccess": "User registered successfully",
     "loginSuccess": "Login successful"
   },
+  "projects": {
+    "created": "Project created successfully",
+    "updated": "Project updated successfully",
+    "deleted": "Project deleted successfully"
+  },
   "health": {
     "service": "Project & Task Management API",
     "statusOk": "ok",
