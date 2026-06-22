@@ -19,6 +19,10 @@
     "projectNotFound": "المشروع غير موجود",
     "taskNotFound": "المهمة غير موجودة"
   },
+  "auth": {
+    "registerSuccess": "تم تسجيل المستخدم بنجاح",
+    "loginSuccess": "تم تسجيل الدخول بنجاح"
+  },
   "health": {
     "service": "واجهة برمجة تطبيقات إدارة المشاريع والمهام",
     "statusOk": "جيد",

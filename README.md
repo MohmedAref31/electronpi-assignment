@@ -172,6 +172,87 @@ Returns service and database connectivity status. No authentication required.
 
 ---
 
+## Authentication
+
+The API uses JWT (JSON Web Tokens) for authentication. Tokens are obtained via the register or login endpoints and sent on all protected requests via the `Authorization: Bearer <token>` header.
+
+### Endpoints
+
+#### Register
+
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "password123"
+}
+```
+
+| Field      | Rules                              |
+| ---------- | ---------------------------------- |
+| `name`     | Required, 2–100 characters         |
+| `email`    | Required, valid email format       |
+| `password` | Required, minimum 8 characters     |
+
+**Response `201 Created`**
+
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": 1,
+      "name": "Jane Doe",
+      "email": "jane@example.com",
+      "role": "member",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIs..."
+  }
+}
+```
+
+Returns a JWT immediately so the client is logged in without a separate login call. Returns `409 Conflict` if the email is already registered.
+
+#### Login
+
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "jane@example.com",
+  "password": "password123"
+}
+```
+
+**Response `200 OK`** — same shape as register.
+
+Returns `401 Unauthorized` with the same message for both "email not found" and "wrong password" to prevent user enumeration.
+
+### Protected Requests
+
+All endpoints except `/auth/*` and `/health` require a valid JWT:
+
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:3000/api/v1/projects
+```
+
+Missing or invalid tokens return `401 Unauthorized`. The `protect` middleware reloads the user from the database on each request, so deleted users and role changes take effect immediately.
+
+### Role-Based Access Control
+
+Users have a `role` of either `admin` or `member` (default). The `authorize(...roles)` middleware gates endpoints by role. It is available for use on any route:
+
+```ts
+router.delete('/projects/:id', protect, authorize(UserRole.ADMIN), handler);
+```
+
+---
+
 ## Localization (i18n)
 
 The API supports **English (`en`)** and **Arabic (`ar`)**. Language is resolved per request, in priority order:
@@ -198,12 +279,12 @@ curl -H "Accept-Language: ar" http://localhost:3000/api/v1/health
 │   ├── config/        env.ts, i18n.ts
 │   ├── entities/      User.ts, Project.ts, Task.ts, enums.ts
 │   ├── locales/       en/translation.json, ar/translation.json
-│   ├── middlewares/   errorHandler.ts, notFound.ts, validateRequest.ts, i18n.ts
-│   ├── routes/        index.ts, health.routes.ts
-│   ├── controllers/   (populated per feature)
-│   ├── services/      (populated per feature)
-│   ├── validators/    (populated per feature)
-│   ├── utils/         ApiError.ts, logger.ts
+│   ├── middlewares/   errorHandler.ts, notFound.ts, validateRequest.ts, i18n.ts, auth.ts
+│   ├── routes/        index.ts, health.routes.ts, auth.routes.ts
+│   ├── controllers/   auth.controller.ts
+│   ├── services/      auth.service.ts
+│   ├── validators/    auth.validator.ts
+│   ├── utils/         ApiError.ts, logger.ts, jwt.ts, password.ts
 │   ├── migrations/    (TypeORM migrations)
 │   ├── seeds/         (seed scripts)
 │   ├── data-source.ts

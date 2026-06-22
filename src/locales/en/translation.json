@@ -19,6 +19,10 @@
     "projectNotFound": "Project not found",
     "taskNotFound": "Task not found"
   },
+  "auth": {
+    "registerSuccess": "User registered successfully",
+    "loginSuccess": "Login successful"
+  },
   "health": {
     "service": "Project & Task Management API",
     "statusOk": "ok",
