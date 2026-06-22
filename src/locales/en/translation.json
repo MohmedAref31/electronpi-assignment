@@ -1,0 +1,28 @@
+{
+  "errors": {
+    "badRequest": "Bad Request",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden",
+    "notFound": "Resource not found",
+    "conflict": "Conflict",
+    "internal": "Internal Server Error",
+    "validation": "Validation failed",
+    "resourceNotFound": "The requested resource was not found",
+    "uniqueViolation": "A resource with that unique value already exists",
+    "foreignKeyViolation": "Referenced resource does not exist",
+    "notNullViolation": "Missing required field",
+    "invalidToken": "Invalid or expired token",
+    "missingToken": "Authentication token is required",
+    "invalidCredentials": "Invalid email or password",
+    "emailInUse": "Email is already in use",
+    "accessDenied": "You do not have access to this resource",
+    "projectNotFound": "Project not found",
+    "taskNotFound": "Task not found"
+  },
+  "health": {
+    "service": "Project & Task Management API",
+    "statusOk": "ok",
+    "dbConnected": "connected",
+    "dbDisconnected": "disconnected"
+  }
+}

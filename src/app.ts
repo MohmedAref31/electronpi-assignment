@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { envVars } from './config/env';
 import { apiRouter } from './routes';
+import { i18nMiddleware } from './middlewares/i18n';
 import { notFoundHandler } from './middlewares/notFound';
 import { errorHandler } from './middlewares/errorHandler';
 import { logger } from './utils/logger';
@@ -24,6 +25,9 @@ export function createApp(): express.Application {
   if (!envVars.isProduction) {
     app.use(morgan('dev'));
   }
+
+  // ----- i18n (language detection + req.t) -----
+  app.use(i18nMiddleware);
 
   // ----- Routes -----
   app.get('/', (_req: Request, res: Response) => {

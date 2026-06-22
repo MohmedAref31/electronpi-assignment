@@ -1,10 +1,14 @@
 import { createApp } from './app';
 import { AppDataSource } from './data-source';
+import { initI18n } from './config/i18n';
 import { envVars } from './config/env';
 import { logger } from './utils/logger';
 
 async function bootstrap(): Promise<void> {
   try {
+    // Initialize i18n (loads locale JSON files)
+    await initI18n();
+
     // Initialize the database connection
     await AppDataSource.initialize();
     logger.info('Database connection established');

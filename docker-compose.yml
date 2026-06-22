@@ -40,6 +40,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
+      DEFAULT_LANGUAGE: ${DEFAULT_LANGUAGE:-en}
+      SUPPORTED_LANGUAGES: ${SUPPORTED_LANGUAGES:-en,ar}
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
       POSTGRES_DB: ${POSTGRES_DB:-project_task_db}

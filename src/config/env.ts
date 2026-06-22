@@ -22,6 +22,11 @@ export const envVars = {
   port: envInt('PORT', 3000),
   corsOrigin: env('CORS_ORIGIN', '*'),
 
+  i18n: {
+    defaultLanguage: env('DEFAULT_LANGUAGE', 'en'),
+    supportedLanguages: env('SUPPORTED_LANGUAGES', 'en,ar').split(',').map((l) => l.trim()),
+  },
+
   jwtSecret: env('JWT_SECRET', 'dev-secret-change-me'),
   jwtExpiresIn: env('JWT_EXPIRES_IN', '1h'),
   bcryptSaltRounds: envInt('BCRYPT_SALT_ROUNDS', 10),

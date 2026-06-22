@@ -120,6 +120,8 @@ See [`.env.example`](./.env.example) for the full list and descriptions.
 | `NODE_ENV`            | `development`          | Environment name                     |
 | `PORT`                | `3000`                 | HTTP port                            |
 | `CORS_ORIGIN`         | `*`                    | Allowed CORS origin(s) (comma sep.)  |
+| `DEFAULT_LANGUAGE`    | `en`                   | Fallback language when none detected |
+| `SUPPORTED_LANGUAGES` | `en,ar`                | Comma-separated enabled locales      |
 | `JWT_SECRET`          | —                      | Secret used to sign JWT tokens       |
 | `JWT_EXPIRES_IN`      | `1h`                   | JWT lifetime                         |
 | `BCRYPT_SALT_ROUNDS`  | `10`                   | bcrypt cost factor                   |
@@ -170,14 +172,33 @@ Returns service and database connectivity status. No authentication required.
 
 ---
 
+## Localization (i18n)
+
+The API supports **English (`en`)** and **Arabic (`ar`)**. Language is resolved per request, in priority order:
+
+1. `?lang=ar` query parameter
+2. `Accept-Language` header (e.g. `ar`, `ar,en;q=0.8`, `en-US`)
+3. `DEFAULT_LANGUAGE` env var (default: `en`)
+
+All error messages and the health endpoint are translated. Translation files live in `src/locales/<lang>/translation.json`.
+
+```bash
+curl http://localhost:3000/api/v1/health                       # English (default)
+curl http://localhost:3000/api/v1/health?lang=ar               # Arabic
+curl -H "Accept-Language: ar" http://localhost:3000/api/v1/health
+```
+
+---
+
 ## Project Structure Overview
 
 ```
 .
 ├── src/
-│   ├── config/        env.ts, database.ts
+│   ├── config/        env.ts, i18n.ts
 │   ├── entities/      User.ts, Project.ts, Task.ts, enums.ts
-│   ├── middlewares/   errorHandler.ts, notFound.ts, validateRequest.ts
+│   ├── locales/       en/translation.json, ar/translation.json
+│   ├── middlewares/   errorHandler.ts, notFound.ts, validateRequest.ts, i18n.ts
 │   ├── routes/        index.ts, health.routes.ts
 │   ├── controllers/   (populated per feature)
 │   ├── services/      (populated per feature)

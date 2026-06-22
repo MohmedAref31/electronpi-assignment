@@ -1,0 +1,28 @@
+{
+  "errors": {
+    "badRequest": "طلب غير صالح",
+    "unauthorized": "غير مصرح",
+    "forbidden": "ممنوع",
+    "notFound": "المورد غير موجود",
+    "conflict": "تعارض",
+    "internal": "خطأ في الخادم الداخلي",
+    "validation": "فشل في التحقق من البيانات",
+    "resourceNotFound": "المورد المطلوب غير موجود",
+    "uniqueViolation": "مورد بهذه القيمة الفريدة موجود بالفعل",
+    "foreignKeyViolation": "المورد المرجعي غير موجود",
+    "notNullViolation": "حقل مطلوب مفقود",
+    "invalidToken": "رمز غير صالح أو منتهي الصلاحية",
+    "missingToken": "رمز المصادقة مطلوب",
+    "invalidCredentials": "بريد إلكتروني أو كلمة مرور غير صحيحة",
+    "emailInUse": "البريد الإلكتروني مستخدم بالفعل",
+    "accessDenied": "ليس لديك حق الوصول إلى هذا المورد",
+    "projectNotFound": "المشروع غير موجود",
+    "taskNotFound": "المهمة غير موجودة"
+  },
+  "health": {
+    "service": "واجهة برمجة تطبيقات إدارة المشاريع والمهام",
+    "statusOk": "جيد",
+    "dbConnected": "متصل",
+    "dbDisconnected": "غير متصل"
+  }
+}

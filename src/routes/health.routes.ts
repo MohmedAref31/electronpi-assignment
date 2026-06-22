@@ -7,7 +7,7 @@ export const healthRouter = Router();
  * GET /api/v1/health
  * Returns service + database connectivity status.
  */
-healthRouter.get('/health', async (_req: Request, res: Response) => {
+healthRouter.get('/health', async (req: Request, res: Response) => {
   let dbStatus: 'connected' | 'disconnected' = 'disconnected';
 
   try {
@@ -22,9 +22,10 @@ healthRouter.get('/health', async (_req: Request, res: Response) => {
   res.status(dbStatus === 'connected' ? 200 : 503).json({
     success: true,
     data: {
-      service: 'project-task-api',
-      status: 'ok',
-      database: dbStatus,
+      service: req.t('health.service'),
+      status: req.t('health.statusOk'),
+      database: req.t(dbStatus === 'connected' ? 'health.dbConnected' : 'health.dbDisconnected'),
+      language: req.language,
       timestamp: new Date().toISOString(),
     },
   });

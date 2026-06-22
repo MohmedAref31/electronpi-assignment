@@ -5,15 +5,18 @@ import { logger } from '../utils/logger';
 /**
  * Centralized error-handling middleware.
  * Must be registered LAST (after all routes and the 404 handler).
+ * Translates messages using the request's resolved language (req.t).
  */
-export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction): void {
+export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction): void {
+  const t = req.t ?? ((key: string) => key);
   let statusCode = 500;
-  let message = 'Internal Server Error';
+  let message = t('errors.internal');
   let details: unknown | undefined;
 
   if (err instanceof ApiError) {
     statusCode = err.statusCode;
-    message = err.message;
+    // Prefer the i18n code if present, fall back to the raw message
+    message = err.code ? t(err.code, err.params) : err.message;
     details = err.details;
   } else if (err instanceof Error) {
     message = err.message;
@@ -21,13 +24,13 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     const code = (err as Error & { code?: string }).code;
     if (code === '23505') {
       statusCode = 409;
-      message = 'A resource with that unique value already exists';
+      message = t('errors.uniqueViolation');
     } else if (code === '23503') {
       statusCode = 400;
-      message = 'Referenced resource does not exist';
+      message = t('errors.foreignKeyViolation');
     } else if (code === '23502') {
       statusCode = 400;
-      message = 'Missing required field';
+      message = t('errors.notNullViolation');
     }
   }
 
