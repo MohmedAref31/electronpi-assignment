@@ -28,6 +28,11 @@
     "updated": "Project updated successfully",
     "deleted": "Project deleted successfully"
   },
+  "tasks": {
+    "created": "Task created successfully",
+    "updated": "Task updated successfully",
+    "deleted": "Task deleted successfully"
+  },
   "health": {
     "service": "Project & Task Management API",
     "statusOk": "ok",

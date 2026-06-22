@@ -10,6 +10,7 @@ import { protect, authorize } from '../middlewares/auth';
 import { validateRequest } from '../middlewares/validateRequest';
 import { paginationMiddleware } from '../middlewares/pagination';
 import { UserRole } from '../entities/enums';
+import { adminProjectTasksRouter } from './admin.task.routes';
 
 export const adminProjectRouter = Router();
 
@@ -38,3 +39,6 @@ adminProjectRouter.put('/:id', projectIdParam, updateProjectRules, validateReque
  * Delete any project by ID (admin only).
  */
 adminProjectRouter.delete('/:id', projectIdParam, validateRequest, remove);
+
+// Nested task routes under admin projects
+adminProjectRouter.use('/:projectId/tasks', adminProjectTasksRouter);

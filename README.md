@@ -407,6 +407,98 @@ Members accessing admin endpoints receive `403 Forbidden`.
 
 ---
 
+## Tasks
+
+Tasks belong to projects. Create and list endpoints are nested under the project; get, update, and delete are flat. All task endpoints require a valid JWT.
+
+### Member Endpoints
+
+| Method | Endpoint | Description | Status |
+| ------ | -------- | ----------- | ------ |
+| `POST` | `/projects/:projectId/tasks` | Create a task under an owned project | 201 |
+| `GET` | `/projects/:projectId/tasks?status=pending&priority=high&page=1&limit=20` | List tasks (filtered + paginated) | 200 |
+| `GET` | `/tasks/:id` | Get a single task (404 if not owned via project) | 200 |
+| `PUT` | `/tasks/:id` | Update a task (including status changes) | 200 |
+| `DELETE` | `/tasks/:id` | Delete a task | 200 |
+
+#### Create Task
+
+```http
+POST /api/v1/projects/1/tasks
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "title": "Implement login screen",
+  "description": "Build the login UI with form validation",
+  "status": "pending",
+  "priority": "high",
+  "dueDate": "2026-02-15T00:00:00.000Z"
+}
+```
+
+| Field         | Rules                                                                |
+| ------------- | -------------------------------------------------------------------- |
+| `title`       | Required, 2–200 characters                                           |
+| `description` | Optional, max 2000 characters                                        |
+| `status`      | Optional, one of: `pending`, `in_progress`, `done` (default: `pending`) |
+| `priority`    | Optional, one of: `low`, `medium`, `high` (default: `medium`)        |
+| `dueDate`     | Optional, valid ISO 8601 date                                        |
+
+**Response `201 Created`**
+
+```json
+{
+  "success": true,
+  "data": {
+    "task": {
+      "id": 1,
+      "title": "Implement login screen",
+      "description": "Build the login UI with form validation",
+      "status": "pending",
+      "priority": "high",
+      "dueDate": "2026-02-15T00:00:00.000Z",
+      "projectId": 1,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    }
+  }
+}
+```
+
+#### List Tasks (filtered + paginated)
+
+```http
+GET /api/v1/projects/1/tasks?status=pending&priority=high&page=1&limit=20
+Authorization: Bearer <token>
+```
+
+| Query param | Default | Description                              |
+| ----------- | ------- | ---------------------------------------- |
+| `status`    | —       | Filter: `pending`, `in_progress`, `done` |
+| `priority`  | —       | Filter: `low`, `medium`, `high`          |
+| `page`      | 1       | Page number                              |
+| `limit`     | 20      | Items per page (max 100)                 |
+
+Both `status` and `priority` filters are optional and can be combined.
+
+#### Ownership
+
+Tasks are owned through the project: a user can only access tasks that belong to projects they own. Not-owner returns `404 Not Found` (anti-enumeration).
+
+### Admin Task Endpoints
+
+| Method | Endpoint | Description | Status |
+| ------ | -------- | ----------- | ------ |
+| `GET` | `/admin/projects/:projectId/tasks?page=1&limit=20` | List tasks for any project | 200 |
+| `GET` | `/admin/tasks/:id` | Get any task by ID | 200 |
+| `PUT` | `/admin/tasks/:id` | Update any task | 200 |
+| `DELETE` | `/admin/tasks/:id` | Delete any task | 200 |
+
+Admin task routes support the same `status` and `priority` filters as member routes. Members accessing admin endpoints receive `403 Forbidden`.
+
+---
+
 ## Localization (i18n)
 
 The API supports **English (`en`)** and **Arabic (`ar`)**. Language is resolved per request, in priority order:
@@ -434,10 +526,10 @@ curl -H "Accept-Language: ar" http://localhost:3000/api/v1/health
 │   ├── entities/      User.ts, Project.ts, Task.ts, enums.ts
 │   ├── locales/       en/translation.json, ar/translation.json
 │   ├── middlewares/   errorHandler.ts, notFound.ts, validateRequest.ts, i18n.ts, auth.ts
-│   ├── routes/        index.ts, health.routes.ts, auth.routes.ts, project.routes.ts, admin.routes.ts, admin.project.routes.ts
-│   ├── controllers/   auth.controller.ts, project.controller.ts, admin.project.controller.ts
-│   ├── services/      auth.service.ts, project.service.ts
-│   ├── validators/    auth.validator.ts, project.validator.ts
+│   ├── routes/        index.ts, health.routes.ts, auth.routes.ts, project.routes.ts, task.routes.ts, admin.routes.ts, admin.project.routes.ts, admin.task.routes.ts
+│   ├── controllers/   auth.controller.ts, project.controller.ts, admin.project.controller.ts, task.controller.ts, admin.task.controller.ts
+│   ├── services/      auth.service.ts, project.service.ts, task.service.ts
+│   ├── validators/    auth.validator.ts, project.validator.ts, task.validator.ts
 │   ├── utils/         ApiError.ts, logger.ts, jwt.ts, password.ts
 │   ├── migrations/    (TypeORM migrations)
 │   ├── seeds/         (seed scripts)

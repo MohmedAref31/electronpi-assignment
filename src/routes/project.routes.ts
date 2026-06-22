@@ -10,6 +10,7 @@ import { createProjectRules, updateProjectRules, projectIdParam } from '../valid
 import { protect } from '../middlewares/auth';
 import { validateRequest } from '../middlewares/validateRequest';
 import { paginationMiddleware } from '../middlewares/pagination';
+import { projectTasksRouter } from './task.routes';
 
 export const projectRouter = Router();
 
@@ -44,3 +45,6 @@ projectRouter.put('/:id', projectIdParam, updateProjectRules, validateRequest, u
  * Delete a project owned by the authenticated user.
  */
 projectRouter.delete('/:id', projectIdParam, validateRequest, remove);
+
+// Nested task routes under projects
+projectRouter.use('/:projectId/tasks', projectTasksRouter);

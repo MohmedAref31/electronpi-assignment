@@ -622,6 +622,400 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Tasks",
+      "description": "Task management endpoints. Create and list tasks are nested under projects (/projects/:projectId/tasks). Get, update, and delete single tasks are flat (/tasks/:id). All requests require a Bearer token. List supports filtering by status and priority plus pagination.",
+      "item": [
+        {
+          "name": "Create Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.success && json.data && json.data.task) {",
+                  "  pm.environment.set('taskId', json.data.task.id);",
+                  "  console.log('taskId stored: ' + json.data.task.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Implement login screen\",\n  \"description\": \"Build the login UI with form validation\",\n  \"status\": \"pending\",\n  \"priority\": \"high\",\n  \"dueDate\": \"2026-02-15T00:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}", "tasks"]
+            },
+            "description": "Create a task under a project owned by the authenticated user. Returns 201. The test script auto-stores the task ID in {{taskId}}."
+          },
+          "response": [
+            {
+              "name": "Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Implement login screen\",\n  \"description\": \"Build the login UI with form validation\",\n  \"status\": \"pending\",\n  \"priority\": \"high\",\n  \"dueDate\": \"2026-02-15T00:00:00.000Z\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/projects/{{projectId}}/tasks",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["projects", "{{projectId}}", "tasks"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"task\": {\n      \"id\": 1,\n      \"title\": \"Implement login screen\",\n      \"description\": \"Build the login UI with form validation\",\n      \"status\": \"pending\",\n      \"priority\": \"high\",\n      \"dueDate\": \"2026-02-15T00:00:00.000Z\",\n      \"projectId\": 1,\n      \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2026-01-01T00:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Tasks (filtered + paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/tasks?status=pending&priority=high&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}", "tasks"],
+              "query": [
+                { "key": "status", "value": "pending", "description": "Filter: pending, in_progress, done" },
+                { "key": "priority", "value": "high", "description": "Filter: low, medium, high" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "List tasks for a project with optional status and priority filters plus pagination."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/projects/{{projectId}}/tasks?status=pending&priority=high&page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["projects", "{{projectId}}", "tasks"],
+                  "query": [
+                    { "key": "status", "value": "pending" },
+                    { "key": "priority", "value": "high" },
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"tasks\": [\n      {\n        \"id\": 1,\n        \"title\": \"Implement login screen\",\n        \"description\": \"Build the login UI\",\n        \"status\": \"pending\",\n        \"priority\": \"high\",\n        \"dueDate\": \"2026-02-15T00:00:00.000Z\",\n        \"projectId\": 1,\n        \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n        \"updatedAt\": \"2026-01-01T00:00:00.000Z\"\n      }\n    ],\n    \"total\": 1,\n    \"page\": 1,\n    \"limit\": 20\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            },
+            "description": "Get a single task by ID. Returns 404 if the task does not exist or belongs to a project the user doesn't own."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/tasks/{{taskId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["tasks", "{{taskId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"task\": {\n      \"id\": 1,\n      \"title\": \"Implement login screen\",\n      \"description\": \"Build the login UI\",\n      \"status\": \"pending\",\n      \"priority\": \"high\",\n      \"dueDate\": \"2026-02-15T00:00:00.000Z\",\n      \"projectId\": 1,\n      \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2026-01-01T00:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Task Title\",\n  \"status\": \"done\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            },
+            "description": "Update a task. All fields are optional. Status can be changed to pending, in_progress, or done."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated Task Title\",\n  \"status\": \"done\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/tasks/{{taskId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["tasks", "{{taskId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"task\": {\n      \"id\": 1,\n      \"title\": \"Updated Task Title\",\n      \"description\": \"Build the login UI\",\n      \"status\": \"done\",\n      \"priority\": \"high\",\n      \"dueDate\": \"2026-02-15T00:00:00.000Z\",\n      \"projectId\": 1,\n      \"createdAt\": \"2026-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2026-01-01T12:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            },
+            "description": "Delete a task owned by the authenticated user."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/tasks/{{taskId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["tasks", "{{taskId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin - Tasks",
+      "description": "Admin-only task endpoints. List tasks for any project, and get/update/delete any task by ID. Requires admin role.",
+      "item": [
+        {
+          "name": "List All Tasks for Project",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/projects/{{projectId}}/tasks?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "projects", "{{projectId}}", "tasks"],
+              "query": [
+                { "key": "status", "value": "", "disabled": true, "description": "Optional filter" },
+                { "key": "priority", "value": "", "disabled": true, "description": "Optional filter" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "List all tasks for any project (admin only, filtered + paginated)."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/projects/{{projectId}}/tasks?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "projects", "{{projectId}}", "tasks"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"tasks\": [ ... ],\n    \"total\": 5,\n    \"page\": 1,\n    \"limit\": 20\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Any Task",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "tasks", "{{taskId}}"]
+            },
+            "description": "Get any task by ID (admin only)."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/tasks/{{taskId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "tasks", "{{taskId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"task\": { ... }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Any Task",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"done\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "tasks", "{{taskId}}"]
+            },
+            "description": "Update any task by ID (admin only)."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"done\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/tasks/{{taskId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "tasks", "{{taskId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"task\": { ... }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Any Task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "tasks", "{{taskId}}"]
+            },
+            "description": "Delete any task by ID (admin only)."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/tasks/{{taskId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "tasks", "{{taskId}}"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
