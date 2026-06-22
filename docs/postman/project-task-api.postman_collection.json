@@ -1,0 +1,73 @@
+{
+  "info": {
+    "_postman_id": "b1a2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Project & Task Management API",
+    "description": "RESTful API for a Project & Task Management System.\n\nBase URL: {{baseUrl}}\nAuth: Bearer {{token}}\n\n## Auth Flow\n1. Call `Auth / Register` to create a user.\n2. Call `Auth / Login` to obtain a JWT `access_token`.\n3. The token is stored in the `token` environment variable automatically and used by all protected requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "electropi-assignment"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string",
+      "description": "API base URL. Use http://localhost:3000/api/v1 for local or Docker runs."
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "JWT access token. Set automatically by the Auth/Login request test script."
+    },
+    {
+      "key": "projectId",
+      "value": "",
+      "type": "string",
+      "description": "Last created/referenced project ID. Set automatically by Projects scripts."
+    },
+    {
+      "key": "taskId",
+      "value": "",
+      "type": "string",
+      "description": "Last created/referenced task ID. Set automatically by Tasks scripts."
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Returns service and database connectivity status. No auth required."
+          },
+          "response": [
+            {
+              "name": "Healthy",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/health",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["health"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"service\": \"project-task-api\",\n    \"status\": \"ok\",\n    \"database\": \"connected\",\n    \"timestamp\": \"2026-01-01T00:00:00.000Z\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
