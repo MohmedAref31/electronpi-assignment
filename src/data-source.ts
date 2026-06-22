@@ -1,9 +1,12 @@
 import 'reflect-metadata';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { envVars } from './config/env';
+import { User } from './entities/User';
+import { Project } from './entities/Project';
+import { Task } from './entities/Task';
 
-// Entities are in src/entities (compiled to dist/entities)
-const entities: string[] = [__dirname + '/entities/*.{ts,js}'];
+// Explicit entity list - avoids glob matching index.ts and causing circular deps
+const entities = [User, Project, Task];
 
 // Migrations are generated into src/migrations and compiled to dist/migrations
 const migrations: string[] = [__dirname + '/migrations/*.{ts,js}'];

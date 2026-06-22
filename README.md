@@ -162,6 +162,60 @@ See [`docs/README.md`](./docs/README.md) for details.
 
 ---
 
+## Database Seeding
+
+The project includes idempotent seeders for an admin user and sample data. Both skip gracefully if the data already exists.
+
+### Run all seeders
+
+```bash
+npm run seed
+```
+
+This runs the admin seeder first, then the sample data seeder.
+
+### Run a specific seeder
+
+```bash
+npm run seed -- --only=admin   # admin user only
+npm run seed -- --only=data    # sample data only
+```
+
+### Default admin user
+
+| Field    | Value                      |
+| -------- | -------------------------- |
+| Name     | `System Admin`             |
+| Email    | `admin@projecttask.com`    |
+| Password | `Admin@12345`              |
+| Role     | `admin`                    |
+
+Override the admin credentials via environment variables (in `.env` or inline):
+
+```bash
+ADMIN_NAME="Custom Admin" ADMIN_EMAIL=admin@myco.com ADMIN_PASSWORD=SecretPass123 npm run seed -- --only=admin
+```
+
+### Sample data
+
+The data seeder creates:
+
+| Resource  | Count | Notes                                                  |
+| --------- | ----- | ------------------------------------------------------ |
+| Users     | 3     | Alice, Bob, Carol (all `member` role)                  |
+| Projects  | 3     | Website Redesign, Mobile App MVP, Q4 Marketing Campaign |
+| Tasks     | 7     | Across all projects with mixed statuses and priorities |
+
+All sample user passwords are `Password123`. Use any of their credentials to log in and test the Projects/Tasks endpoints.
+
+### Seeding with Docker
+
+```bash
+docker compose exec app npm run seed
+```
+
+---
+
 ## Health Check
 
 ```http
