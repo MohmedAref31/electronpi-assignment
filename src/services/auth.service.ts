@@ -1,5 +1,5 @@
-import { AppDataSource } from '../data-source';
 import { User } from '../entities/User';
+import { userRepo } from '../entities';
 import { UserRole } from '../entities/enums';
 import { ApiError } from '../utils/ApiError';
 import { hashPassword, comparePassword } from '../utils/password';
@@ -31,30 +31,26 @@ async function emitAuthResult(user: User): Promise<AuthResult> {
 }
 
 export async function registerUser(input: RegisterInput): Promise<AuthResult> {
-  const userRepository = AppDataSource.getRepository(User);
-
-  const existing = await userRepository.findOneBy({ email: input.email });
+  const existing = await userRepo.findOneBy({ email: input.email });
   if (existing) {
     throw ApiError.conflict('Email is already in use', 'errors.emailInUse');
   }
 
   const hashedPassword = await hashPassword(input.password);
 
-  const user = userRepository.create({
+  const user = userRepo.create({
     name: input.name,
     email: input.email,
     password: hashedPassword,
     role: UserRole.MEMBER,
   });
-  await userRepository.save(user);
+  await userRepo.save(user);
 
   return emitAuthResult(user);
 }
 
 export async function loginUser(input: LoginInput): Promise<AuthResult> {
-  const userRepository = AppDataSource.getRepository(User);
-
-  const user = await userRepository
+  const user = await userRepo
     .createQueryBuilder('user')
     .addSelect('user.password')
     .where('user.email = :email', { email: input.email })

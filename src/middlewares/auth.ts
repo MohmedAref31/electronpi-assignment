@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '../entities/User';
 import { UserRole } from '../entities/enums';
-import { AppDataSource } from '../data-source';
+import { userRepo } from '../entities';
 import { verifyToken } from '../utils/jwt';
 import { ApiError } from '../utils/ApiError';
 
@@ -26,8 +26,7 @@ export async function protect(req: Request, _res: Response, next: NextFunction):
     const token = header.slice('Bearer '.length).trim();
     const decoded = verifyToken(token);
 
-    const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOneBy({ id: decoded.id });
+    const user = await userRepo.findOneBy({ id: decoded.id });
 
     if (!user) {
       throw ApiError.unauthorized('User no longer exists', 'errors.invalidToken');
