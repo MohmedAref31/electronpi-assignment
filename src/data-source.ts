@@ -2,11 +2,11 @@ import 'reflect-metadata';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { envVars } from './config/env';
 
-// Entities will be wired in as they are implemented
-const entities: string[] = [__dirname + '/../entities/*.{ts,js}'];
+// Entities are in src/entities (compiled to dist/entities)
+const entities: string[] = [__dirname + '/entities/*.{ts,js}'];
 
 // Migrations are generated into src/migrations and compiled to dist/migrations
-const migrations: string[] = [__dirname + '/../migrations/*.{ts,js}'];
+const migrations: string[] = [__dirname + '/migrations/*.{ts,js}'];
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
@@ -28,5 +28,3 @@ export const dataSourceOptions: DataSourceOptions = {
 
 // Singleton DataSource used by the app and the TypeORM CLI
 export const AppDataSource = new DataSource(dataSourceOptions);
-
-export default AppDataSource;
