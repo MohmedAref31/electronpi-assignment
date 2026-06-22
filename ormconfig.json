@@ -1,0 +1,5 @@
+# TypeORM CLI config (points to the compiled DataSource in dist/)
+# This file is loaded by the `typeorm` CLI when running migrations via npm scripts.
+{
+  "dataSource": "src/data-source.ts"
+}
