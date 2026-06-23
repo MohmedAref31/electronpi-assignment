@@ -2,9 +2,12 @@ import { taskRepo } from '../entities';
 import { Task } from '../entities/Task';
 import { TaskStatus, TaskPriority } from '../entities/enums';
 import { ApiError } from '../utils/ApiError';
+import { buildOrderClause } from '../utils/sort';
 import { getOwnProject, getProjectById } from './project.service';
 import type { Pagination } from '../middlewares/pagination';
 import type { PaginatedResult } from './project.service';
+
+const TASK_SORT_FIELDS = ['title', 'status', 'priority', 'dueDate', 'createdAt', 'updatedAt'];
 
 export interface CreateTaskInput {
   title: string;
@@ -100,7 +103,7 @@ export async function listOwnTasks(
     where: buildWhereClause(projectId, filters),
     skip,
     take: limit,
-    order: { createdAt: 'DESC' },
+    order: buildOrderClause(pagination, TASK_SORT_FIELDS),
   });
   return { items, total, page, limit };
 }
@@ -156,7 +159,7 @@ export async function listAllTasks(
     where: buildWhereClause(projectId, filters),
     skip,
     take: limit,
-    order: { createdAt: 'DESC' },
+    order: buildOrderClause(pagination, TASK_SORT_FIELDS),
   });
   return { items, total, page, limit };
 }

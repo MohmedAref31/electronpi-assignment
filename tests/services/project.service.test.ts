@@ -88,7 +88,7 @@ describe('project.service - listOwnProjects', () => {
     const projects = [makeProject(), makeProject({ id: 2 })];
     mockedProjectRepo.findAndCount.mockResolvedValue([projects, 2]);
 
-    const result = await listOwnProjects(2, { page: 1, limit: 20, skip: 0 });
+    const result = await listOwnProjects(2, { page: 1, limit: 20, skip: 0, sortBy: undefined, sortOrder: 'DESC' as const });
 
     expect(result.items).toHaveLength(2);
     expect(result.total).toBe(2);
@@ -105,7 +105,7 @@ describe('project.service - listOwnProjects', () => {
   it('uses skip from the pagination object for page 2', async () => {
     mockedProjectRepo.findAndCount.mockResolvedValue([[], 0]);
 
-    await listOwnProjects(2, { page: 2, limit: 10, skip: 10 });
+    await listOwnProjects(2, { page: 2, limit: 10, skip: 10, sortBy: undefined, sortOrder: 'DESC' as const });
 
     expect(mockedProjectRepo.findAndCount).toHaveBeenCalledWith(
       expect.objectContaining({ skip: 10, take: 10 }),
@@ -203,7 +203,7 @@ describe('project.service - listAllProjects', () => {
     const projects = [makeProject(), makeProject({ id: 2, ownerId: 3 })];
     mockedProjectRepo.findAndCount.mockResolvedValue([projects, 2]);
 
-    const result = await listAllProjects({ page: 1, limit: 20, skip: 0 });
+    const result = await listAllProjects({ page: 1, limit: 20, skip: 0, sortBy: undefined, sortOrder: 'DESC' as const });
 
     expect(result.items).toHaveLength(2);
     expect(result.total).toBe(2);

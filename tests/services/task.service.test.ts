@@ -64,7 +64,7 @@ function mockQueryBuilder(task: any | null) {
   return qb;
 }
 
-const pagination = { page: 1, limit: 20, skip: 0 };
+const pagination = { page: 1, limit: 20, skip: 0, sortBy: undefined, sortOrder: 'DESC' as const };
 
 // ---------------------------------------------------------------------------
 // Owner-scoped

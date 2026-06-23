@@ -2,7 +2,10 @@ import { projectRepo } from '../entities';
 import { Project } from '../entities/Project';
 import { ProjectStatus } from '../entities/enums';
 import { ApiError } from '../utils/ApiError';
+import { buildOrderClause } from '../utils/sort';
 import type { Pagination } from '../middlewares/pagination';
+
+const PROJECT_SORT_FIELDS = ['title', 'status', 'createdAt', 'updatedAt'];
 
 export interface CreateProjectInput {
   title: string;
@@ -61,7 +64,7 @@ export async function listOwnProjects(
     where: { ownerId },
     skip,
     take: limit,
-    order: { createdAt: 'DESC' },
+    order: buildOrderClause(pagination, PROJECT_SORT_FIELDS),
   });
   return { items, total, page, limit };
 }
@@ -105,7 +108,7 @@ export async function listAllProjects(
   const [items, total] = await projectRepo.findAndCount({
     skip,
     take: limit,
-    order: { createdAt: 'DESC' },
+    order: buildOrderClause(pagination, PROJECT_SORT_FIELDS),
   });
   return { items, total, page, limit };
 }

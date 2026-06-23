@@ -20,12 +20,12 @@ describe('paginationMiddleware', () => {
     expect(DEFAULT_PAGE).toBe(1);
   });
 
-  it('uses default page and limit when no query params', () => {
+  it('uses default page, limit, and sort when no query params', () => {
     const req = mockRequest() as Request;
 
     paginationMiddleware(req, mockResponse() as Response, next);
 
-    expect(req.pagination).toEqual({ page: 1, limit: 20, skip: 0 });
+    expect(req.pagination).toEqual({ page: 1, limit: 20, skip: 0, sortBy: undefined, sortOrder: 'DESC' });
     expect(next).toHaveBeenCalledWith();
   });
 
@@ -34,7 +34,48 @@ describe('paginationMiddleware', () => {
 
     paginationMiddleware(req, mockResponse() as Response, next);
 
-    expect(req.pagination).toEqual({ page: 3, limit: 50, skip: 100 });
+    expect(req.pagination).toEqual({ page: 3, limit: 50, skip: 100, sortBy: undefined, sortOrder: 'DESC' });
+  });
+
+  it('extracts sortBy and sortOrder from query', () => {
+    const req = mockRequest({ sortBy: 'title', sortOrder: 'asc' }) as Request;
+
+    paginationMiddleware(req, mockResponse() as Response, next);
+
+    expect(req.pagination!.sortBy).toBe('title');
+    expect(req.pagination!.sortOrder).toBe('ASC');
+  });
+
+  it('normalizes sortOrder to uppercase', () => {
+    const req = mockRequest({ sortOrder: 'desc' }) as Request;
+
+    paginationMiddleware(req, mockResponse() as Response, next);
+
+    expect(req.pagination!.sortOrder).toBe('DESC');
+  });
+
+  it('defaults sortOrder to DESC when invalid', () => {
+    const req = mockRequest({ sortOrder: 'random' }) as Request;
+
+    paginationMiddleware(req, mockResponse() as Response, next);
+
+    expect(req.pagination!.sortOrder).toBe('DESC');
+  });
+
+  it('defaults sortBy to undefined when empty string', () => {
+    const req = mockRequest({ sortBy: '' }) as Request;
+
+    paginationMiddleware(req, mockResponse() as Response, next);
+
+    expect(req.pagination!.sortBy).toBeUndefined();
+  });
+
+  it('defaults sortBy to undefined when not a string', () => {
+    const req = mockRequest({ sortBy: 123 }) as Request;
+
+    paginationMiddleware(req, mockResponse() as Response, next);
+
+    expect(req.pagination!.sortBy).toBeUndefined();
   });
 
   it('clamps limit to MAX_LIMIT', () => {
@@ -92,7 +133,7 @@ describe('paginationMiddleware', () => {
 
     paginationMiddleware(req, mockResponse() as Response, next);
 
-    expect(req.pagination).toEqual({ page: 2, limit: 10, skip: 10 });
+    expect(req.pagination).toEqual({ page: 2, limit: 10, skip: 10, sortBy: undefined, sortOrder: 'DESC' });
   });
 
   it('calculates skip correctly for page 5 with limit 25', () => {
@@ -100,6 +141,6 @@ describe('paginationMiddleware', () => {
 
     paginationMiddleware(req, mockResponse() as Response, next);
 
-    expect(req.pagination).toEqual({ page: 5, limit: 25, skip: 100 });
+    expect(req.pagination).toEqual({ page: 5, limit: 25, skip: 100, sortBy: undefined, sortOrder: 'DESC' });
   });
 });
