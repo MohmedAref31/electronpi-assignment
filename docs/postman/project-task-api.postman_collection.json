@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "b1a2c3d4-e5f6-7890-abcd-ef1234567890",
     "name": "Project & Task Management API",
-    "description": "RESTful API for a Project & Task Management System.\n\nBase URL: {{baseUrl}}\nAuth: Bearer {{token}}\n\n## Auth Flow\n1. Call `Auth / Register` to create a user.\n2. Call `Auth / Login` to obtain a JWT `access_token`.\n3. The token is stored in the `token` environment variable automatically and used by all protected requests.",
+    "description": "RESTful API for a Project & Task Management System.\n\nBase URL: {{baseUrl}}\nAuth: Bearer {{token}}\n\n## Auth Flow\n1. Call `Auth / Register` to create a user.\n2. Call `Auth / Login` to obtain a JWT `data.token`.\n3. The token is stored in the `token` environment variable automatically and used by all protected requests.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "electropi-assignment"
   },
@@ -271,7 +271,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["projects"]
             },
-            "description": "Create a new project owned by the authenticated user. Returns 201 with the project and a JWT. The test script auto-stores the project ID in {{projectId}}."
+            "description": "Create a new project owned by the authenticated user. Returns 201 with the created project. The test script auto-stores the project ID in {{projectId}}."
           },
           "response": [
             {
@@ -307,15 +307,17 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/projects?page=1&limit=20",
+              "raw": "{{baseUrl}}/projects?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
               "host": ["{{baseUrl}}"],
               "path": ["projects"],
               "query": [
                 { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                { "key": "limit", "value": "20" },
+                { "key": "sortBy", "value": "createdAt", "description": "title, status, createdAt, updatedAt" },
+                { "key": "sortOrder", "value": "DESC", "description": "ASC or DESC" }
               ]
             },
-            "description": "List the authenticated user's projects with pagination."
+            "description": "List the authenticated user's projects with pagination and sorting. Invalid sortBy falls back to createdAt DESC."
           },
           "response": [
             {
@@ -326,15 +328,17 @@
                   { "key": "Authorization", "value": "Bearer {{token}}" }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/projects?page=1&limit=20",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["projects"],
-                  "query": [
-                    { "key": "page", "value": "1" },
-                    { "key": "limit", "value": "20" }
-                  ]
-                }
-              },
+                    "raw": "{{baseUrl}}/projects?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["projects"],
+                    "query": [
+                      { "key": "page", "value": "1" },
+                      { "key": "limit", "value": "20" },
+                      { "key": "sortBy", "value": "createdAt" },
+                      { "key": "sortOrder", "value": "DESC" }
+                    ]
+                  }
+                },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
@@ -471,15 +475,17 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/admin/projects?page=1&limit=20",
+              "raw": "{{baseUrl}}/admin/projects?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
               "host": ["{{baseUrl}}"],
               "path": ["admin", "projects"],
               "query": [
                 { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                { "key": "limit", "value": "20" },
+                { "key": "sortBy", "value": "createdAt", "description": "title, status, createdAt, updatedAt" },
+                { "key": "sortOrder", "value": "DESC", "description": "ASC or DESC" }
               ]
             },
-            "description": "List all projects across all users (admin only, paginated)."
+            "description": "List all projects across all users (admin only) with pagination and sorting."
           },
           "response": [
             {
@@ -490,15 +496,17 @@
                   { "key": "Authorization", "value": "Bearer {{token}}" }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/admin/projects?page=1&limit=20",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "projects"],
-                  "query": [
-                    { "key": "page", "value": "1" },
-                    { "key": "limit", "value": "20" }
-                  ]
-                }
-              },
+                    "raw": "{{baseUrl}}/admin/projects?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["admin", "projects"],
+                    "query": [
+                      { "key": "page", "value": "1" },
+                      { "key": "limit", "value": "20" },
+                      { "key": "sortBy", "value": "createdAt" },
+                      { "key": "sortOrder", "value": "DESC" }
+                    ]
+                  }
+                },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
@@ -625,7 +633,7 @@
     },
     {
       "name": "Tasks",
-      "description": "Task management endpoints. Create and list tasks are nested under projects (/projects/:projectId/tasks). Get, update, and delete single tasks are flat (/tasks/:id). All requests require a Bearer token. List supports filtering by status and priority plus pagination.",
+      "description": "Task management endpoints. Create and list tasks are nested under projects (/projects/:projectId/tasks). Get, update, and delete single tasks are flat (/tasks/:id). All requests require a Bearer token. List supports filtering by status and priority plus pagination and sorting.",
       "item": [
         {
           "name": "Create Task",
@@ -695,17 +703,19 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/projects/{{projectId}}/tasks?status=pending&priority=high&page=1&limit=20",
+              "raw": "{{baseUrl}}/projects/{{projectId}}/tasks?status=pending&priority=high&page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
               "host": ["{{baseUrl}}"],
               "path": ["projects", "{{projectId}}", "tasks"],
               "query": [
                 { "key": "status", "value": "pending", "description": "Filter: pending, in_progress, done" },
                 { "key": "priority", "value": "high", "description": "Filter: low, medium, high" },
                 { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                { "key": "limit", "value": "20" },
+                { "key": "sortBy", "value": "createdAt", "description": "title, status, priority, dueDate, createdAt, updatedAt" },
+                { "key": "sortOrder", "value": "DESC", "description": "ASC or DESC" }
               ]
             },
-            "description": "List tasks for a project with optional status and priority filters plus pagination."
+            "description": "List tasks for a project with optional status/priority filters plus pagination and sorting."
           },
           "response": [
             {
@@ -716,17 +726,19 @@
                   { "key": "Authorization", "value": "Bearer {{token}}" }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/projects/{{projectId}}/tasks?status=pending&priority=high&page=1&limit=20",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["projects", "{{projectId}}", "tasks"],
-                  "query": [
-                    { "key": "status", "value": "pending" },
-                    { "key": "priority", "value": "high" },
-                    { "key": "page", "value": "1" },
-                    { "key": "limit", "value": "20" }
-                  ]
-                }
-              },
+                    "raw": "{{baseUrl}}/projects/{{projectId}}/tasks?status=pending&priority=high&page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["projects", "{{projectId}}", "tasks"],
+                    "query": [
+                      { "key": "status", "value": "pending" },
+                      { "key": "priority", "value": "high" },
+                      { "key": "page", "value": "1" },
+                      { "key": "limit", "value": "20" },
+                      { "key": "sortBy", "value": "createdAt" },
+                      { "key": "sortOrder", "value": "DESC" }
+                    ]
+                  }
+                },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
@@ -863,17 +875,19 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/admin/projects/{{projectId}}/tasks?page=1&limit=20",
+              "raw": "{{baseUrl}}/admin/projects/{{projectId}}/tasks?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
               "host": ["{{baseUrl}}"],
               "path": ["admin", "projects", "{{projectId}}", "tasks"],
               "query": [
                 { "key": "status", "value": "", "disabled": true, "description": "Optional filter" },
                 { "key": "priority", "value": "", "disabled": true, "description": "Optional filter" },
                 { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" }
+                { "key": "limit", "value": "20" },
+                { "key": "sortBy", "value": "createdAt", "description": "title, status, priority, dueDate, createdAt, updatedAt" },
+                { "key": "sortOrder", "value": "DESC", "description": "ASC or DESC" }
               ]
             },
-            "description": "List all tasks for any project (admin only, filtered + paginated)."
+            "description": "List all tasks for any project (admin only) with optional filters, pagination, and sorting."
           },
           "response": [
             {
@@ -884,15 +898,19 @@
                   { "key": "Authorization", "value": "Bearer {{token}}" }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/admin/projects/{{projectId}}/tasks?page=1&limit=20",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "projects", "{{projectId}}", "tasks"],
-                  "query": [
-                    { "key": "page", "value": "1" },
-                    { "key": "limit", "value": "20" }
-                  ]
-                }
-              },
+                    "raw": "{{baseUrl}}/admin/projects/{{projectId}}/tasks?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["admin", "projects", "{{projectId}}", "tasks"],
+                    "query": [
+                      { "key": "status", "value": "", "disabled": true },
+                      { "key": "priority", "value": "", "disabled": true },
+                      { "key": "page", "value": "1" },
+                      { "key": "limit", "value": "20" },
+                      { "key": "sortBy", "value": "createdAt" },
+                      { "key": "sortOrder", "value": "DESC" }
+                    ]
+                  }
+                },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",

@@ -2,7 +2,9 @@
 
 A RESTful API for a Project & Task Management System built with Node.js, Express, TypeScript, TypeORM, and PostgreSQL.
 
-> **Status:** Initial project scaffold. Feature implementation (auth, projects, tasks) is delivered incrementally.
+> **Status:** Production-ready API with auth, RBAC, i18n, seeding, and full test coverage.
+>
+> **Postman docs:** <https://documenter.getpostman.com/view/38028079/2sBXwwn7jo>
 
 ---
 
@@ -144,14 +146,29 @@ See [`.env.example`](./.env.example) for the full list and descriptions.
 | `npm run migration:run`   | Apply pending database migrations             |
 | `npm run migration:revert`| Revert the last applied migration             |
 | `npm run migration:generate` | Generate a migration from entity changes   |
+| `npm run migration:create` | Create an empty migration file                |
 | `npm run seed`            | Run database seeders                          |
 | `npm test`                | Run the test suite (Jest)                     |
+| `npm run test:watch`      | Run tests in watch mode                       |
+| `npm run test:cov`        | Run tests with coverage report                |
 
 ---
 
 ## API Documentation
 
-API documentation is provided as a **Postman collection**.
+The API is fully documented as a **Postman collection** with a published, browsable Documenter view.
+
+| Format | Link |
+| --- | --- |
+| Published docs (HTML, browser-friendly) | <https://documenter.getpostman.com/view/38028079/2sBXwwn7jo> |
+| Raw collection (Postman v2.1) | [`docs/postman/project-task-api.postman_collection.json`](./docs/postman/project-task-api.postman_collection.json) |
+| Environment template | [`docs/postman/environment.example.json`](./docs/postman/environment.example.json) |
+
+### Browse the docs (no Postman install needed)
+
+Open the published link above to read every endpoint, request body, and response with the built-in **Run in Postman** button at the top right.
+
+### Use the raw collection locally
 
 1. Import `docs/postman/project-task-api.postman_collection.json` into Postman.
 2. Import `docs/postman/environment.example.json` as an environment.
@@ -360,17 +377,21 @@ Content-Type: application/json
 }
 ```
 
-#### List Projects (paginated)
+#### List Projects (paginated + sorted)
 
 ```http
-GET /api/v1/projects?page=1&limit=20
+GET /api/v1/projects?page=1&limit=20&sortBy=title&sortOrder=ASC
 Authorization: Bearer <token>
 ```
 
-| Query param | Default | Max |
-| ----------- | ------- | --- |
-| `page`      | 1       | —   |
-| `limit`     | 20      | 100 |
+| Query param | Default     | Valid values                                    |
+| ----------- | ----------- | ----------------------------------------------- |
+| `page`      | 1           | Positive integer                                |
+| `limit`     | 20          | 1–100                                           |
+| `sortBy`    | `createdAt` | `title`, `status`, `createdAt`, `updatedAt`    |
+| `sortOrder` | `DESC`      | `ASC`, `DESC`                                   |
+
+If `sortBy` is missing or not in the allowed list, the API falls back to `createdAt DESC`.
 
 **Response `200 OK`**
 
@@ -396,7 +417,7 @@ Admins can view, update, and delete **any** project across all users. These rout
 
 | Method | Endpoint | Description | Status |
 | ------ | -------- | ----------- | ------ |
-| `GET` | `/admin/projects?page=1&limit=20` | List all projects (paginated) | 200 |
+| `GET` | `/admin/projects?page=1&limit=20&sortBy=createdAt&sortOrder=DESC` | List all projects (paginated + sorted) | 200 |
 | `GET` | `/admin/projects/:id` | Get any project by ID | 200 |
 | `PUT` | `/admin/projects/:id` | Update any project | 200 |
 | `DELETE` | `/admin/projects/:id` | Delete any project | 200 |
@@ -466,21 +487,23 @@ Content-Type: application/json
 }
 ```
 
-#### List Tasks (filtered + paginated)
+#### List Tasks (filtered + paginated + sorted)
 
 ```http
-GET /api/v1/projects/1/tasks?status=pending&priority=high&page=1&limit=20
+GET /api/v1/projects/1/tasks?status=pending&priority=high&page=1&limit=20&sortBy=dueDate&sortOrder=ASC
 Authorization: Bearer <token>
 ```
 
-| Query param | Default | Description                              |
-| ----------- | ------- | ---------------------------------------- |
-| `status`    | —       | Filter: `pending`, `in_progress`, `done` |
-| `priority`  | —       | Filter: `low`, `medium`, `high`          |
-| `page`      | 1       | Page number                              |
-| `limit`     | 20      | Items per page (max 100)                 |
+| Query param | Default     | Description / Valid values                                         |
+| ----------- | ----------- | ------------------------------------------------------------------ |
+| `status`    | —           | Filter: `pending`, `in_progress`, `done`                          |
+| `priority`  | —           | Filter: `low`, `medium`, `high`                                   |
+| `page`      | 1           | Page number                                                        |
+| `limit`     | 20          | Items per page (max 100)                                           |
+| `sortBy`    | `createdAt` | `title`, `status`, `priority`, `dueDate`, `createdAt`, `updatedAt` |
+| `sortOrder` | `DESC`      | `ASC`, `DESC`                                                      |
 
-Both `status` and `priority` filters are optional and can be combined.
+Both `status` and `priority` filters are optional and can be combined. Invalid `sortBy` values fall back to `createdAt DESC`.
 
 #### Ownership
 
@@ -490,12 +513,28 @@ Tasks are owned through the project: a user can only access tasks that belong to
 
 | Method | Endpoint | Description | Status |
 | ------ | -------- | ----------- | ------ |
-| `GET` | `/admin/projects/:projectId/tasks?page=1&limit=20` | List tasks for any project | 200 |
+| `GET` | `/admin/projects/:projectId/tasks?page=1&limit=20&sortBy=createdAt&sortOrder=DESC` | List tasks for any project (filtered + sorted) | 200 |
 | `GET` | `/admin/tasks/:id` | Get any task by ID | 200 |
 | `PUT` | `/admin/tasks/:id` | Update any task | 200 |
 | `DELETE` | `/admin/tasks/:id` | Delete any task | 200 |
 
-Admin task routes support the same `status` and `priority` filters as member routes. Members accessing admin endpoints receive `403 Forbidden`.
+Admin task routes support the same `status`, `priority`, `sortBy`, and `sortOrder` query options as member routes. Members accessing admin endpoints receive `403 Forbidden`.
+
+---
+
+## Sorting Rules
+
+Sorting is implemented by query params on list endpoints:
+
+- `sortBy`: field name to sort by
+- `sortOrder`: `ASC` or `DESC` (case-insensitive, defaults to `DESC`)
+
+Supported `sortBy` fields:
+
+- Projects (`/projects`, `/admin/projects`): `title`, `status`, `createdAt`, `updatedAt`
+- Tasks (`/projects/:projectId/tasks`, `/admin/projects/:projectId/tasks`): `title`, `status`, `priority`, `dueDate`, `createdAt`, `updatedAt`
+
+If `sortBy` is omitted or invalid for that resource, the API uses `createdAt DESC`.
 
 ---
 
