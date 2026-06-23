@@ -3,7 +3,7 @@
 # =============================================================================
 
 # ----- Stage 1: Build -----
-FROM node:latest-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN npm run build
 RUN npm prune --production
 
 # ----- Stage 2: Runtime -----
-FROM node:18-alpine AS runtime
+FROM node:22-alpine AS runtime
 
 ENV NODE_ENV=production
 
@@ -31,8 +31,10 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
 
-# Create a non-root user for security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Create a non-root user for security and ensure writable app directories
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup \
+  && mkdir -p /app/logs \
+  && chown -R appuser:appgroup /app
 USER appuser
 
 EXPOSE 3000
